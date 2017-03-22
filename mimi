@@ -1,0 +1,101 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using NPOI.XSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.SS.Formula.Functions;
+
+namespace ConsoleApplication1
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var path = @"dizhi";
+            var files = Directory.GetFiles(path,"*.xlsx");
+
+            var dicFilename2Col1 = new Dictionary<string, List<string>>();
+
+            var readCount = 0;
+            foreach (var filepath in files)
+            {
+                var fs=File.Open(filepath,FileMode.Open,FileAccess.Read);
+                var readWorkBook = new XSSFWorkbook(fs);
+                var readWorkSheet = readWorkBook.GetSheetAt(0);
+
+                var writeWorkbook = new XSSFWorkbook();
+                var col1 = new List<string>();
+                for (int row = 1; row < readWorkSheet.LastRowNum; row++)
+                {
+                    var cell = readWorkSheet.GetRow(row).GetCell(0);
+                    switch (cell.CellType)
+                    {
+                        case NPOI.SS.UserModel.CellType.Blank:
+                            break;
+                        case NPOI.SS.UserModel.CellType.Boolean:
+                            break;
+                        case NPOI.SS.UserModel.CellType.Error:
+                            break;
+                        case NPOI.SS.UserModel.CellType.Formula:
+                            break;
+                        case NPOI.SS.UserModel.CellType.Numeric:
+                            col1.Add(cell.NumericCellValue.ToString());
+                            break;
+                        case NPOI.SS.UserModel.CellType.String:
+                            col1.Add(cell.StringCellValue);
+                            break;
+                        case NPOI.SS.UserModel.CellType.Unknown:
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                var fi=new FileInfo(filepath);
+                dicFilename2Col1.Add(fi.Name, col1);
+                readWorkBook.Close();
+
+                fs.Close();
+                fs.Dispose();
+
+                Console.Title = readCount++ + "/" + files.Length;
+            }
+
+            var writeWorkBook = new XSSFWorkbook();
+            var writeWorkSheet = writeWorkBook.CreateSheet("sheet1");
+
+            foreach (var dic in dicFilename2Col1)
+            {
+                IRow row;
+                row = writeWorkSheet.CreateRow(writeWorkSheet.LastRowNum+1);
+                if (writeWorkSheet.LastRowNum==0)
+                {
+                    row = writeWorkSheet.CreateRow(0);
+                }
+                else
+                {
+                }
+                var cell = row.CreateCell(0);
+                //var cellValue = "名称：" + dic.Key + Environment.NewLine + "列名：" + string.Join("、", dic.Value);
+                var cellValue = dic.Value.Count;
+                cell.SetCellValue(cellValue);
+
+                foreach (var col in dic.Value)
+                {
+                    row.CreateCell(row.LastCellNum).SetCellValue(col);
+                }
+
+            }
+            var writefs=new FileStream("save.xlsx",FileMode.Create);
+            writeWorkBook.Write(writefs);
+            writeWorkBook.Close();
+            writefs.Close();
+            writefs.Dispose();
+
+            Console.WriteLine("OK");
+            Console.ReadLine();
+        }
+    }
+}
