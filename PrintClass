@@ -1,0 +1,202 @@
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using DevExpress.XtraPrinting;
+
+namespace _3DChartDemo
+{
+    public class PrintClass
+    {
+        #region 私有字段
+
+        private PrintingSystem ps = null;
+        private string formName = null;
+        private PrintableComponentLink link = null;
+
+        #endregion
+
+        #region 属性
+        string _PrintHeader = null;  // 设置打印时的标题
+        private string _PrintFooter = null; // 设置打印时页脚显示内容
+        private bool _landScape;  // 设置页面横纵向
+        private System.Drawing.Printing.PaperKind _paperKind;  // 设置纸张类型(A1、A2、A3、A4)
+
+        /// <summary>
+        /// 设置打印时的标题
+        /// </summary> 
+        public string PrintHeader
+        {
+            set
+            {
+                _PrintHeader = value;
+            }
+        }
+
+        /// <summary>
+        /// 设置打印时页脚显示内容
+        /// </summary> 
+        public string PrintFooter
+        {
+            set
+            {
+                _PrintFooter = value;
+            }
+        }
+
+        /// <summary>
+        /// 设置页面横纵向
+        /// </summary> 
+        public bool LandScape
+        {
+            set { _landScape = value; }
+        }
+
+        /// <summary>
+        /// 设置纸张类型(A1、A2、A3、A4)
+        /// </summary>        
+        public System.Drawing.Printing.PaperKind PaperKind
+        {
+            set { _paperKind = value; }
+        }
+        #endregion
+
+        #region 构造函数
+        /// <summary>
+        /// 打印控制器
+        /// </summary>
+        /// <param name="control">要打印的部件</param>
+        public PrintClass(IPrintable control)
+        {
+            if (control == null)
+            {
+                return;
+            }
+            Control c = (Control)control;
+            formName = c.FindForm().GetType().FullName + "." + c.Name;
+            ps = new DevExpress.XtraPrinting.PrintingSystem();
+            link = new DevExpress.XtraPrinting.PrintableComponentLink(ps);
+            ps.Links.Add(link);
+            link.Component = control;
+        }
+        #endregion
+
+        #region 打印预览
+        /// <summary>
+        /// 打印预览
+        /// </summary>
+        public void Preview()
+        {
+            try
+            {
+                if (0==0)
+                   //DevExpress.XtraPrinting.PrintHelper.IsPrintingAvailable )
+                {
+                    Cursor.Current = Cursors.AppStarting;
+                    if (_PrintHeader != null)
+                    {
+                        PageHeaderFooter phf = link.PageHeaderFooter as PageHeaderFooter;
+
+                        //设置页眉
+                        phf.Header.Content.Clear();
+                        phf.Header.Content.AddRange(new string[] { "", _PrintHeader, "" });
+                        phf.Header.Font = new System.Drawing.Font("宋体", 14, System.Drawing.FontStyle.Bold);
+                        phf.Header.LineAlignment = BrickAlignment.Center;
+
+                        //设置页脚
+                        phf.Footer.Content.Clear();
+                        phf.Footer.Content.AddRange(new string[] { "", "", _PrintFooter });
+                        phf.Footer.Font = new System.Drawing.Font("宋体", 9, System.Drawing.FontStyle.Regular);
+                        phf.Footer.LineAlignment = BrickAlignment.Center;
+
+                    }
+                    link.PaperKind = ps.PageSettings.PaperKind;
+                    link.Margins = ps.PageSettings.Margins;
+                    link.Landscape = ps.PageSettings.Landscape;
+                    link.CreateDocument();
+
+                    //汉化
+                    //DevExpress.XtraPrinting.Localization.PreviewLocalizer.Active = new Dxperience.LocalizationCHS.DxperienceXtraPrintingLocalizationCHS();
+                    ps.PreviewFormEx.Show();
+
+                }
+                else
+                {
+                    Cursor.Current = Cursors.Default;
+                    MessageBox.Show("打印机不可用 ", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+            }
+        }
+        #endregion
+
+        #region 打印
+
+        /// <summary>
+        /// 打印
+        /// </summary>
+        public void Print()
+        {
+            try
+            {
+                if 
+                    (0==0)
+                    //(DevExpress.XtraPrinting.PrintHelper.IsPrintingAvailable)
+                {
+                    if (_PrintHeader != null)
+                    {
+                        PageHeaderFooter phf = link.PageHeaderFooter as PageHeaderFooter;
+
+                        //设置页眉
+                        phf.Header.Content.Clear();
+                        phf.Header.Content.AddRange(new string[] { "", _PrintHeader, "" });
+                        phf.Header.Font = new System.Drawing.Font("宋体", 14, System.Drawing.FontStyle.Bold);
+                        phf.Header.LineAlignment = BrickAlignment.Center;
+
+                        //设置页脚
+                        phf.Footer.Content.Clear();
+                        phf.Footer.Content.AddRange(new string[] { "", "", _PrintFooter });
+                        phf.Footer.Font = new System.Drawing.Font("宋体", 9, System.Drawing.FontStyle.Regular);
+                        phf.Footer.LineAlignment = BrickAlignment.Center;
+
+                    }
+                    link.PaperKind = ps.PageSettings.PaperKind;
+                    link.Margins = ps.PageSettings.Margins;
+                    link.Landscape = ps.PageSettings.Landscape;
+                    link.CreateDocument();
+                    link.CreateDocument();
+                    //汉化
+                    //  DevExpress.XtraPrinting.Localization.PreviewLocalizer.Active = new Dxperience.LocalizationCHS.DxperienceXtraPrintingLocalizationCHS();
+                    ps.Print();
+                }
+                else
+                {
+                    Cursor.Current = Cursors.Default;
+                    MessageBox.Show("打印机不可用 ", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            finally
+            {
+            }
+        }
+
+        #endregion
+
+        #region 获取页面设置信息
+
+        /// <summary>
+        /// 获取页面设置信息
+        /// </summary>
+        public void LoadPageSetting()
+        {
+            System.Drawing.Printing.Margins margins = new System.Drawing.Printing.Margins(60, 60, 60, 60);
+            ps.PageSettings.Assign(margins, _paperKind, _landScape);
+        }
+        #endregion
+    }
+}
