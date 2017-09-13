@@ -1,0 +1,17 @@
+ private void button1_Click(object sender, EventArgs e)
+        {
+            PrintClass printClass = new PrintClass(this.chartControl1);
+
+            printClass.LandScape = true;
+
+            printClass.PaperKind = System.Drawing.Printing.PaperKind.A4;
+
+            printClass.LoadPageSetting();
+
+            printClass.Preview();
+        }
+          private void button2_Click(object sender, EventArgs e)
+        {
+            PageSetupDialog ps = new PageSetupDialog();
+            this.gridView1.ShowPrintPreview();
+        }
